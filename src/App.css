@@ -1,0 +1,141 @@
+/* TODO: Remove this comment and refactor */
+/* stylelint-disable */
+
+:root {
+  width: 300px;
+  height: 600px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.App-header {
+  background-color: #222;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+.App-title {
+  font-size: 19px;
+  color: #3700B3;
+  text-align: center;
+
+  /* text-shadow: #FC0 1px 0 10px; */
+  text-shadow: #0072ff8c 1px 0 24px;
+}
+
+.App-intro {
+  font-size: large;
+  margin: 20px;
+}
+
+.rock-salt{
+  font-family: 'Rock Salt', cursive !important;
+
+}
+
+.Dialog-header {
+  font-size: 16px;
+  color: #3700B3;
+  text-align: left;
+  text-shadow: #0072ff82 1px 0 13px;
+
+  /* text-shadow: #3700B3 1px 0 10px; */
+}
+
+.habibi{
+font-family: Habibi, serif;
+}
+
+.cag{
+  font-family: Cagliostro, sans-serif;
+}
+
+.neohell{
+  font-family: 'GFS Neohellenic', sans-serif;
+}
+
+.rancho{
+  font-family: Rancho, cursive;
+}
+
+ul{
+  list-style-type: none;
+  padding: 6px;
+  margin: 0;
+}
+
+li{
+  font-size: 14px
+}
+
+body {
+  font-family: Helvetica, sans-serif;
+}
+
+.react-autosuggest__container {
+  position: relative;
+}
+
+ul{
+  padding: 0;
+  margin: 0;
+}
+
+.react-autosuggest__input--focused {
+  outline: none;
+}
+
+.react-autosuggest__input--open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.react-autosuggest__suggestions-container {
+  display: none;
+}
+
+.react-autosuggest__suggestions-container--open {
+  display: block;
+  position: absolute;
+  top: 47px;
+  width: 350px;
+  background-color: #fff;
+  font-family: Helvetica, sans-serif;
+  font-weight: 300;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  z-index: 2;
+}
+
+.react-autosuggest__suggestions-list {
+  list-style-type: none;
+  padding-left: 0;
+
+}
+
+.react-autosuggest__suggestion {
+  cursor: pointer;
+  border-style: outset;
+  padding: 8px 4px 14px 10px;
+}
+
+.react-autosuggest__suggestion--highlighted {
+  background-color: #ddd;
+}
+
+.footer {
+  margin: 9px 20px;
+  font-size: 12px;
+  color: #777;
+}
+
+.open-sans{
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  text-shadow: #352995 0 0 1px;
+}
