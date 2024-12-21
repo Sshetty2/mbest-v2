@@ -10,8 +10,9 @@
     "128": "src/assets/meetup-logo-small.png"
   },
   "permissions": [
+    "identity",
     "storage",
-    "identity"
+    "background"
   ],
   "content_scripts": [
     {
@@ -43,6 +44,6 @@
   ],
   "content_security_policy": {},
   "host_permissions": [
-    "http://*.meetup.com/*"
+    "https://*.meetup.com/*"
   ]
 }
