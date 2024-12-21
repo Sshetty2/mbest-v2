@@ -1,51 +1,76 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import { MeetupApi } from '../api/MeetupApi';
+import { useDispatch } from 'react-redux';
+import { setSelectedGroup } from '../store/groupSlice';
 
-interface AutosuggestProps {
-  getInputData: (value: string) => void;
-  textFieldValue: string;
+interface Group {
+  id: string;
+  name: string;
+  urlname: string;
 }
 
-type GroupNameArray = Array<[string, string]>;
+interface AutosuggestProps {
+  onGroupSelect?: (group: Group | null) => void;
+}
 
-export default function AutosuggestField ({ getInputData, textFieldValue }: AutosuggestProps) {
-  const [grpNameArray, setGrpNameArray] = useState<GroupNameArray>([]);
+export default function AutosuggestField ({ onGroupSelect }: AutosuggestProps) {
+  const [inputValue, setInputValue] = useState('');
+  const [options, setOptions] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const meetupApi = new MeetupApi();
 
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      const item = localStorage.getItem('grpNameArray');
+  const fetchGroups = useCallback(
+    debounce(async (searchText: string) => {
+      if (!searchText) {
+        setOptions([]);
 
-      if (item != undefined) {
-        setGrpNameArray(JSON.parse(item));
+        return;
       }
 
-      return;
-    }
-
-    chrome.storage.local.get(['grpNameArray'], result => {
-      if (result.grpNameArray) {
-        setGrpNameArray(result.grpNameArray);
+      try {
+        setLoading(true);
+        const groups = await meetupApi.fetchGroups(searchText);
+        setOptions(groups);
+      } catch (error) {
+        console.error('Failed to fetch groups:', error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
       }
-    });
-  }, []);
+    }, 300),
+    []
+  );
 
   return (
     <Autocomplete
-      options={grpNameArray}
-      getOptionLabel={(option: [string, string]) => option[1]}
-      inputValue={textFieldValue}
+      options={options}
+      getOptionLabel={(option: Group) => option.name}
+      inputValue={inputValue}
       onInputChange={(_, newValue) => {
-        getInputData(newValue);
+        setInputValue(newValue);
+        fetchGroups(newValue);
       }}
+      onChange={(_, group) => {
+        if (group) {
+          dispatch(setSelectedGroup(group));
+          onGroupSelect?.(group);
+        }
+      }}
+      loading={loading}
       renderInput={params => (
         <TextField
           {...params}
           label="Group Name"
           fullWidth
-          placeholder="Type A Group Name"
+          placeholder="Type to search groups"
         />
       )}
-      isOptionEqualToValue={(option, value) => option[0] === value[0]}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      filterOptions={x => x}
+      noOptionsText={inputValue ? 'No groups found' : 'Type to search groups'}
     />
   );
 }

@@ -3,17 +3,15 @@ import AutosuggestField from './AutoSuggest';
 
 interface FormProps {
 	date: string;
-	getInputData: (value: string) => void;
-	onFormSubmit: () => void;
-	textFieldValue: string;
+
+	// onFormSubmit: () => void;
 	disabled: boolean;
 }
 
 export default function Form ({
   date,
-  getInputData,
-  onFormSubmit,
-  textFieldValue,
+
+  //   onFormSubmit,
   disabled
 }: FormProps) {
   return (
@@ -23,8 +21,6 @@ export default function Form ({
       gap          : 2
     }}>
       <AutosuggestField
-        getInputData={getInputData}
-        textFieldValue={textFieldValue}
       />
 
       <TextField
@@ -42,7 +38,8 @@ export default function Form ({
         variant="contained"
         color="primary"
         disabled={disabled}
-        onClick={onFormSubmit}
+
+        // onClick={onFormSubmit}
         id="mbest-form-button"
         sx={{ mt: 1 }}
       >

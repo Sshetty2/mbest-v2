@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Container } from '@mui/material';
 import Calendar from 'react-calendar';
+import { Provider } from 'react-redux';
 import { Value } from 'react-calendar/src/shared/types.js';
 import { DialogComponent } from './Dialog';
 import { Form } from './Form';
 import { SuccessDialogComponent } from './SuccessDialog';
 import { LoadingDialogComponent } from './LoadingDialog';
+import { AuthProvider } from './api/auth/AuthContext';
+import { store } from './store/store';
 
 import './App.css';
 import 'react-calendar/dist/Calendar.css';
@@ -22,7 +25,6 @@ interface AppState {
 	meetupEventData: MeetupEvent[];
 	date: Value;
 	open: boolean;
-	textField: string;
 	urlGroupName: string;
 	successBox: boolean;
 	disabled: boolean;
@@ -34,7 +36,6 @@ export default function App () {
     meetupEventData: [],
     date           : new Date(),
     open           : false,
-    textField      : '',
     urlGroupName   : '',
     successBox     : false,
     disabled       : false,
@@ -60,52 +61,52 @@ export default function App () {
     return '';
   }, []);
 
-  const handleFormSubmit = useCallback(() => {
-    if (!state.textField) {
-      // eslint-disable-next-line no-alert
-      alert('Please enter a valid group name');
+  // const handleFormSubmit = useCallback(() => {
+  //   if (!state.textField) {
+  //     // eslint-disable-next-line no-alert
+  //     alert('Please enter a valid group name');
 
-      return;
-    }
+  //     return;
+  //   }
 
-    setState(prev => ({
-      ...prev,
-      disabled : true,
-      isLoading: true
-    }));
+  //   setState(prev => ({
+  //     ...prev,
+  //     disabled : true,
+  //     isLoading: true
+  //   }));
 
-    if (!Array.isArray(state.date)) {
-      // eslint-disable-next-line no-console
-      console.error('Error: date is not an array');
+  //   if (!Array.isArray(state.date)) {
+  //     // eslint-disable-next-line no-console
+  //     console.error('Error: date is not an array');
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const dateRangeStart = state.date[0]?.getTime();
-    const dateRangeEnd = state.date[1]?.getTime();
+  //   const dateRangeStart = state.date[0]?.getTime();
+  //   const dateRangeEnd = state.date[1]?.getTime();
 
-    if (!dateRangeEnd || !dateRangeStart) {
-      return;
-    }
+  //   if (!dateRangeEnd || !dateRangeStart) {
+  //     return;
+  //   }
 
-    if (process.env.NODE_ENV === 'development') {
-      localStorage.setItem('grpNameInput', state.textField);
-      localStorage.setItem('dateRangeStart', dateRangeStart.toString());
-      localStorage.setItem('dateRangeEnd', dateRangeEnd.toString());
-      localStorage.setItem('urlPathName', state.urlGroupName);
+  //   if (process.env.NODE_ENV === 'development') {
+  //     localStorage.setItem('grpNameInput', state.textField);
+  //     localStorage.setItem('dateRangeStart', dateRangeStart.toString());
+  //     localStorage.setItem('dateRangeEnd', dateRangeEnd.toString());
+  //     localStorage.setItem('urlPathName', state.urlGroupName);
 
-      return;
-    }
+  //     return;
+  //   }
 
-    chrome.storage.local.set({
-      grpNameInput: state.textField,
-      dateRangeStart,
-      dateRangeEnd: dateRangeEnd + 86400000,
-      urlPathName : state.urlGroupName
-    });
+  //   chrome.storage.local.set({
+  //     grpNameInput: state.textField,
+  //     dateRangeStart,
+  //     dateRangeEnd: dateRangeEnd + 86400000,
+  //     urlPathName : state.urlGroupName
+  //   });
 
-    chrome.runtime.sendMessage({ action: 'meetupRequest' });
-  }, [state.textField, state.date, state.urlGroupName]);
+  //   chrome.runtime.sendMessage({ action: 'meetupRequest' });
+  // }, [state.textField, state.date, state.urlGroupName]);
 
   const handleConfirmation = useCallback(() => {
     const parsedDataObj = state.meetupEventData.filter(x => x.checked);
@@ -154,7 +155,6 @@ export default function App () {
         case 'urlGroupName':
           setState(prev => ({
             ...prev,
-            textField   : request.type === 'urlGroupName' ? request.urlGroupName || '' : '',
             urlGroupName: request.type === 'urlGroupName' ? request.urlGroupName || '' : ''
           }));
           break;
@@ -208,90 +208,87 @@ export default function App () {
   }, []);
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        width : '300px',
-        height: '600px'
-      }}>
-      <Box sx={{
-        display      : 'flex',
-        flexDirection: 'column',
-        gap          : 3,
-        py           : 3
-      }}>
-        <DialogComponent
-          open={state.open}
-          handleConfirmation={handleConfirmation}
-          dialogClose={() => setState(prev => ({
-            ...prev,
-            open           : false,
-            date           : new Date(),
-            disabled       : false,
-            meetupEventData: []
-          }))}
-
-          // @ts-ignore
-          meetupEventData={state.meetupEventData}
-          onCheck={e => {
-            const id = e.target.id;
-            setState(prev => ({
-              ...prev,
-              meetupEventData: prev.meetupEventData
-
-                // @ts-ignore
-                .map(event => (event.id === id ? {
-                  ...event,
-                  checked: !event.checked
-                } : event))
-                .sort((a, b) => (a.time || 0) - (b.time || 0))
-            }));
-          }}
-        />
-        <SuccessDialogComponent
-          open={state.successBox}
-          dialogClose={() => setState(prev => ({
-            ...prev,
-            successBox: false
-          }))}
-        />
-        <LoadingDialogComponent open={state.isLoading} />
-        <Typography
-          variant="h5"
-          className="rock-salt"
+    <Provider store={store}>
+      <AuthProvider>
+        <Container
+          maxWidth="sm"
           sx={{
-            fontFamily: '\'Rock Salt\' !important',
-            color     : '#3700B3',
-            textAlign : 'center',
-            textShadow: '#0072ff8c 1px 0 24px'
+            width : '300px',
+            height: '600px'
           }}>
-					Meetup Batch Event Set Tool
-        </Typography>
-        <Form
-          date={formatDate(state.date)}
-          getInputData={value => {
-            if (!state.urlGroupName) {
-              setState(prev => ({
+          <Box sx={{
+            display      : 'flex',
+            flexDirection: 'column',
+            gap          : 3,
+            py           : 3
+          }}>
+            <DialogComponent
+              open={state.open}
+              handleConfirmation={handleConfirmation}
+              dialogClose={() => setState(prev => ({
                 ...prev,
-                textField: value
-              }));
-            }
-          }}
-          onFormSubmit={handleFormSubmit}
-          textFieldValue={state.textField}
-          disabled={state.disabled}
-        />
-        <Box sx={{ mt: 2 }}>
-          <Calendar
-            onChange={(date: Value) => setState(prev => ({
-              ...prev,
-              date
-            }))}
-            value={state.date}
-            selectRange={true}
-          />
-        </Box>
-      </Box>
-    </Container>
+                open           : false,
+                date           : new Date(),
+                disabled       : false,
+                meetupEventData: []
+              }))}
+
+              // @ts-ignore
+              meetupEventData={state.meetupEventData}
+              onCheck={e => {
+                const id = e.target.id;
+                setState(prev => ({
+                  ...prev,
+                  meetupEventData: prev.meetupEventData
+
+                  // @ts-ignore
+                    .map(event => (event.id === id ? {
+                      ...event,
+                      checked: !event.checked
+                    } : event))
+                    .sort((a, b) => (a.time || 0) - (b.time || 0))
+                }));
+              }}
+            />
+            <SuccessDialogComponent
+              open={state.successBox}
+              dialogClose={() => setState(prev => ({
+                ...prev,
+                successBox: false
+              }))}
+            />
+            <LoadingDialogComponent open={state.isLoading} />
+            <Typography
+              variant="h5"
+              className="rock-salt"
+              sx={{
+                fontFamily: '\'Rock Salt\' !important',
+                color     : '#3700B3',
+                textAlign : 'center',
+                textShadow: '#0072ff8c 1px 0 24px'
+              }}>
+					Meetup Batch Event Set Tool
+            </Typography>
+            <Form
+              date={formatDate(state.date)}
+
+              // onFormSubmit={handleFormSubmit}
+              // textFieldValue={state.textField}
+              disabled={state.disabled}
+            />
+            <Box sx={{ mt: 2 }}>
+              <Calendar
+                onChange={(date: Value) => setState(prev => ({
+                  ...prev,
+                  date
+                }))}
+                value={state.date}
+                selectRange={true}
+              />
+            </Box>
+          </Box>
+        </Container>
+      </AuthProvider>
+    </Provider>
   );
 }
