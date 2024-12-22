@@ -18,16 +18,28 @@ interface Event {
   selected?: boolean;
 }
 
+export interface CalendarConfirmation {
+  status: string;
+  summary: string;
+  description: string;
+  htmlLink: string;
+  start: {
+    dateTime: string;
+  };
+}
+
 interface EventState {
   events: Event[];
+  confirmations: CalendarConfirmation[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: EventState = {
-  events : [],
-  loading: false,
-  error  : null
+  events       : [],
+  confirmations: [],
+  loading      : false,
+  error        : null
 };
 
 export const fetchEvents = createAsyncThunk(
@@ -68,7 +80,7 @@ export const scheduleEvents = createAsyncThunk(
         throw new Error('No events selected');
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise<CalendarConfirmation[]>((resolve, reject) => {
         chrome.runtime.sendMessage(
           {
             type  : 'SCHEDULE_EVENTS',
@@ -105,6 +117,9 @@ export const eventSlice = createSlice({
       state.events = [];
       state.error = null;
     },
+    clearConfirmations: state => {
+      state.confirmations = [];
+    },
     toggleEventSelection: (state, action) => {
       const event = state.events.find(e => e.id === action.payload);
 
@@ -126,10 +141,15 @@ export const eventSlice = createSlice({
       .addCase(fetchEvents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(scheduleEvents.fulfilled, (state, action) => {
+        state.loading = false;
+        state.confirmations = action.payload;
+        state.events = [];
       });
   }
 });
 
-export const { clearEvents, toggleEventSelection } = eventSlice.actions;
+export const { clearEvents, clearConfirmations, toggleEventSelection } = eventSlice.actions;
 
 export default eventSlice.reducer;
