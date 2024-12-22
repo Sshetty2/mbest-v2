@@ -22,6 +22,7 @@ interface DialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  showNoResults?: boolean;
 }
 
 const Transition = forwardRef(function Transition (
@@ -36,7 +37,12 @@ const Transition = forwardRef(function Transition (
     {...props} />;
 });
 
-export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
+export const DialogComponent = ({
+  open,
+  onClose,
+  onConfirm,
+  showNoResults = false
+}: DialogProps) => {
   const dispatch = useDispatch();
   const { events } = useSelector((state: RootState) => state.events);
   const { selectedGroup } = useSelector((state: RootState) => state.group);
@@ -57,14 +63,16 @@ export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
     onClose();
   };
 
-  // Only show dialog if there are events
-  if (!events.length) {
+  // Only show dialog if there are events OR showNoResults is true
+  if (!events.length && !showNoResults) {
     return null;
   }
 
+  // Modify greeting to handle both cases
   // eslint-disable-next-line max-len
-  const greeting = events.length > 0 ? `Here's what I found for ${selectedGroup?.name}!` : 'No events found. Try searching a different group or date range';
+  const greeting = events.length > 0 ? `Here's what I found for ${selectedGroup?.name}!` : `No events found for ${selectedGroup?.name} in the selected date range`;
 
+  // Only show followUp if we have events
   const followUp = events.length > 0 ? 'Would you like to schedule these events?' : null;
 
   return (
@@ -82,6 +90,7 @@ export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
       }}>
         <Typography
           variant="h5"
+          sx={{ fontSize: '1.2rem' }}
           className="habibi">
           {greeting}
           {followUp && (
@@ -93,7 +102,7 @@ export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
         </Typography>
       </DialogTitle>
       <DialogContent sx={{
-        px: 2.75,
+        px: 2,
         py: 0
       }}>
         <DialogContentText component="div">
@@ -144,29 +153,19 @@ export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
           </List>
         </DialogContentText>
       </DialogContent>
-      <Box sx={{ px: 2.5 }}>
-        <Typography
-          variant="subtitle2"
-          sx={{
-            fontSize  : '13px',
-            textShadow: '#ff8a00bd 1px 0 7px'
-          }}
-        >
-          Warning: You must be signed into chrome or allow syncing on request
-          for the authentication flow to work properly
-        </Typography>
-      </Box>
       <DialogActions>
         <Button
           onClick={handleClose}
           color="primary">
-          Cancel
+          {events.length > 0 ? 'Cancel' : 'Close'}
         </Button>
-        <Button
-          onClick={onConfirm}
-          color="primary">
-          Schedule
-        </Button>
+        {events.length > 0 && (
+          <Button
+            onClick={onConfirm}
+            color="primary">
+            Schedule
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

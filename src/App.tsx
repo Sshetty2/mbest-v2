@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Container, Button, TextField, Dialog } from '@mui/material';
 import { CalendarComponent } from './components/Calendar';
@@ -6,6 +6,7 @@ import { AutosuggestField } from './components/AutoSuggest';
 import { LoadingDialogComponent } from './components/LoadingDialog';
 import { fetchEvents } from './store/eventSlice';
 import { AppDispatch, RootState, store } from './store/store';
+import { DialogComponent } from './components/Dialog';
 
 const App = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,14 +14,20 @@ const App = () => {
   const { startDate, endDate } = useSelector((state: RootState) => state.date);
   const { loading, error } = useSelector((state: RootState) => state.events);
   const { events } = useSelector((state: RootState) => state.events);
+  const [showNoResults, setShowNoResults] = useState(false);
 
   useEffect(() => {
     console.log(events);
   }, [events]);
 
   const handleScheduleClick = useCallback(() => {
+    setShowNoResults(true);
     dispatch(fetchEvents());
   }, [dispatch]);
+
+  const handleConfirmation = () => {
+    console.log('Confirmation clicked');
+  };
 
   return (
     <Container
@@ -80,6 +87,12 @@ const App = () => {
         </Box>
         {/* Dialogs */}
         <LoadingDialogComponent open={loading} />
+        <DialogComponent
+          open={loading || showNoResults || events.length > 0}
+          onClose={() => setShowNoResults(false)}
+          onConfirm={handleConfirmation}
+          showNoResults={showNoResults}
+        />
         {error && (
           <Dialog
             open={!!error}
