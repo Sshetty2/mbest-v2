@@ -3,7 +3,6 @@ import { Box, Typography, Container } from '@mui/material';
 import { Provider } from 'react-redux';
 import { Value } from 'react-calendar/src/shared/types.js';
 import { CalendarComponent } from './components/Calendar';
-import { SuccessDialogComponent } from './SuccessDialog';
 import { DialogComponent } from './components/Dialog';
 import { LoadingDialogComponent } from './components/LoadingDialog';
 import { MeetupApi } from './api/MeetupApi';
@@ -13,6 +12,7 @@ import { store } from './store/store';
 import './App.css';
 import 'react-calendar/dist/Calendar.css';
 import { Form } from './components/Form';
+import { SuccessDialogComponent } from './components/SuccessDialog';
 
 interface MeetupEvent {
 	venue: { [key: string]: { name: string } };
