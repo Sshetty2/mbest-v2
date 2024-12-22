@@ -45,13 +45,13 @@ const Transition = forwardRef(function Transition (
     {...props} />;
 });
 
-export default function DialogComponent ({
+export const DialogComponent = ({
   open,
   handleConfirmation,
   dialogClose,
   meetupEventData,
   onCheck
-}: DialogProps) {
+}: DialogProps) => {
   const formatDate = useCallback((utcMilliseconds: number) => {
     const date = new Date(0);
     date.setUTCMilliseconds(utcMilliseconds);
@@ -171,4 +171,4 @@ export default function DialogComponent ({
       </DialogActions>
     </Dialog>
   );
-}
+};

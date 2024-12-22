@@ -1,20 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import Calendar from 'react-calendar';
 import { Provider } from 'react-redux';
 import { Value } from 'react-calendar/src/shared/types.js';
-import { DialogComponent } from './Dialog';
-import { Form } from './Form';
+import { CalendarComponent } from './components/Calendar';
 import { SuccessDialogComponent } from './SuccessDialog';
-import { LoadingDialogComponent } from './LoadingDialog';
+import { DialogComponent } from './components/Dialog';
+import { LoadingDialogComponent } from './components/LoadingDialog';
+import { MeetupApi } from './api/MeetupApi';
 import { AuthProvider } from './api/auth/AuthContext';
 import { store } from './store/store';
 
 import './App.css';
 import 'react-calendar/dist/Calendar.css';
-
-// import { endOfDay, formatISO, isValid, startOfDay } from 'date-fns';
-import { MeetupApi } from './api/MeetupApi';
+import { Form } from './components/Form';
 
 interface MeetupEvent {
 	venue: { [key: string]: { name: string } };
@@ -58,37 +56,6 @@ export default function App () {
     isLoading      : false
   });
 
-  // const formatDate = useCallback((date: Value) => {
-  //   if (!date || !Array.isArray(date)) {
-  //     return;
-  //   }
-
-  //   const [startDate, endDate] = date;
-
-  //   if (!isValid(startDate) || !isValid(endDate)) {
-  //     return;
-  //   }
-
-  //   const formattedStartDate = formatISO(startOfDay(startDate as Date));
-  //   const formattedEndDate = formatISO(endOfDay(endDate as Date));
-
-  //   return [formattedStartDate, formattedEndDate];
-
-  // const formattedStartDate =
-  // const options: Intl.DateTimeFormatOptions = {
-  //   weekday: 'short',
-  //   year   : 'numeric',
-  //   month  : 'long',
-  //   day    : 'numeric'
-  // };
-
-  // if (Array.isArray(date)) {
-  //   return `${date[0]?.toLocaleDateString('en-US', options)} - ${date[1]?.toLocaleDateString('en-US', options)}`;
-  // }
-
-  // return '';
-  // }, []);
-
   useEffect(() => {
     // @ts-ignore
     if (!state.date?.[0] || !state.date?.[1]) {
@@ -117,53 +84,6 @@ export default function App () {
 
     return '';
   }, []);
-
-  // const handleFormSubmit = useCallback(() => {
-  //   if (!state.textField) {
-  //     // eslint-disable-next-line no-alert
-  //     alert('Please enter a valid group name');
-
-  //     return;
-  //   }
-
-  //   setState(prev => ({
-  //     ...prev,
-  //     disabled : true,
-  //     isLoading: true
-  //   }));
-
-  //   if (!Array.isArray(state.date)) {
-  //     // eslint-disable-next-line no-console
-  //     console.error('Error: date is not an array');
-
-  //     return;
-  //   }
-
-  //   const dateRangeStart = state.date[0]?.getTime();
-  //   const dateRangeEnd = state.date[1]?.getTime();
-
-  //   if (!dateRangeEnd || !dateRangeStart) {
-  //     return;
-  //   }
-
-  //   if (process.env.NODE_ENV === 'development') {
-  //     localStorage.setItem('grpNameInput', state.textField);
-  //     localStorage.setItem('dateRangeStart', dateRangeStart.toString());
-  //     localStorage.setItem('dateRangeEnd', dateRangeEnd.toString());
-  //     localStorage.setItem('urlPathName', state.urlGroupName);
-
-  //     return;
-  //   }
-
-  //   chrome.storage.local.set({
-  //     grpNameInput: state.textField,
-  //     dateRangeStart,
-  //     dateRangeEnd: dateRangeEnd + 86400000,
-  //     urlPathName : state.urlGroupName
-  //   });
-
-  //   chrome.runtime.sendMessage({ action: 'meetupRequest' });
-  // }, [state.textField, state.date, state.urlGroupName]);
 
   const handleConfirmation = useCallback(() => {
     const parsedDataObj = state.meetupEventData.filter(x => x.checked);
@@ -333,16 +253,7 @@ export default function App () {
               // textFieldValue={state.textField}
               disabled={state.disabled}
             />
-            <Box sx={{ mt: 2 }}>
-              <Calendar
-                onChange={(date: Value) => setState(prev => ({
-                  ...prev,
-                  date
-                }))}
-                value={state.date}
-                selectRange={true}
-              />
-            </Box>
+            <CalendarComponent />
           </Box>
         </Container>
       </AuthProvider>

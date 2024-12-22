@@ -15,7 +15,7 @@ interface AutosuggestProps {
   onGroupSelect?: (group: Group | null) => void;
 }
 
-export default function AutosuggestField ({ onGroupSelect }: AutosuggestProps) {
+export const AutosuggestField = ({ onGroupSelect }: AutosuggestProps) => {
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
@@ -73,4 +73,4 @@ export default function AutosuggestField ({ onGroupSelect }: AutosuggestProps) {
       noOptionsText={inputValue ? 'No groups found' : 'Type to search groups'}
     />
   );
-}
+};
