@@ -14,23 +14,14 @@ import {
   Slide
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
-
-interface MeetupEvent {
-  id: string | number;
-  venue?: { name: string };
-  group: { name: string };
-  name: string;
-  link: string;
-  time: number;
-  checked: boolean;
-}
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store/store';
+import { toggleEventSelection, clearEvents } from '../store/eventSlice';
 
 interface DialogProps {
   open: boolean;
-  handleConfirmation: () => void;
-  dialogClose: () => void;
-  meetupEventData: MeetupEvent[];
-  onCheck: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
 const Transition = forwardRef(function Transition (
@@ -45,36 +36,43 @@ const Transition = forwardRef(function Transition (
     {...props} />;
 });
 
-export const DialogComponent = ({
-  open,
-  handleConfirmation,
-  dialogClose,
-  meetupEventData,
-  onCheck
-}: DialogProps) => {
-  const formatDate = useCallback((utcMilliseconds: number) => {
-    const date = new Date(0);
-    date.setUTCMilliseconds(utcMilliseconds);
+export const DialogComponent = ({ open, onClose, onConfirm }: DialogProps) => {
+  const dispatch = useDispatch();
+  const { events } = useSelector((state: RootState) => state.events);
+  const { selectedGroup } = useSelector((state: RootState) => state.group);
 
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      year   : 'numeric',
-      month  : 'long',
-      day    : 'numeric'
-    });
-  }, []);
+  const formatDate = useCallback((dateTimeStr: string) => new Date(dateTimeStr).toLocaleDateString('en-US', {
+    weekday: 'short',
+    year   : 'numeric',
+    month  : 'long',
+    day    : 'numeric'
+  }), []);
+
+  const handleCheckboxChange = (eventId: string) => {
+    dispatch(toggleEventSelection(eventId));
+  };
+
+  const handleClose = () => {
+    dispatch(clearEvents());
+    onClose();
+  };
+
+  // Only show dialog if there are events
+  if (!events.length) {
+    return null;
+  }
 
   // eslint-disable-next-line max-len
-  const greeting = meetupEventData.length > 0 ? `Here's what I found for ${meetupEventData[0].group.name}!` : 'I couldn\'t find anything! Please try searching a different group name or select a different date range';
+  const greeting = events.length > 0 ? `Here's what I found for ${selectedGroup?.name}!` : 'No events found. Try searching a different group or date range';
 
-  const followUp = meetupEventData.length > 0 ? 'Are you sure you\'d like to schedule the following events?' : null;
+  const followUp = events.length > 0 ? 'Would you like to schedule these events?' : null;
 
   return (
     <Dialog
       open={open}
       TransitionComponent={Transition}
       keepMounted
-      onClose={dialogClose}
+      onClose={handleClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
@@ -100,7 +98,7 @@ export const DialogComponent = ({
       }}>
         <DialogContentText component="div">
           <List sx={{ p: 0 }}>
-            {meetupEventData.map(event => (
+            {events.map(event => (
               <ListItem
                 key={event.id}
                 sx={{
@@ -117,17 +115,17 @@ export const DialogComponent = ({
                   alignItems    : 'center'
                 }}>
                   <Typography color="text.primary">
-                    {event.venue?.name || event.group.name}
+                    {event.venue.name}
                   </Typography>
                   <Checkbox
-                    checked={event.checked}
-                    onChange={onCheck}
-                    id={String(event.id)}
+                    checked={event.selected ?? true}
+                    onChange={() => handleCheckboxChange(event.id)}
+                    id={event.id}
                   />
                 </Box>
                 <Typography
                   component="a"
-                  href={event.link}
+                  href={event.eventUrl}
                   target="_blank"
                   rel="noreferrer"
                   sx={{
@@ -135,10 +133,11 @@ export const DialogComponent = ({
                     textDecoration: 'underline'
                   }}
                 >
-                  {event.name}
+                  {event.title}
                 </Typography>
+
                 <Typography color="text.primary">
-                  {formatDate(event.time)}
+                  {formatDate(event.dateTime)}
                 </Typography>
               </ListItem>
             ))}
@@ -159,14 +158,14 @@ export const DialogComponent = ({
       </Box>
       <DialogActions>
         <Button
-          onClick={dialogClose}
+          onClick={handleClose}
           color="primary">
-          No
+          Cancel
         </Button>
         <Button
-          onClick={handleConfirmation}
+          onClick={onConfirm}
           color="primary">
-          Yes
+          Schedule
         </Button>
       </DialogActions>
     </Dialog>

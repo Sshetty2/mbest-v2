@@ -13,9 +13,10 @@ interface Group {
 
 interface AutosuggestProps {
   onGroupSelect?: (group: Group | null) => void;
+  size?: 'small' | 'medium';
 }
 
-export const AutosuggestField = ({ onGroupSelect }: AutosuggestProps) => {
+export const AutosuggestField = ({ onGroupSelect, size = 'small' }: AutosuggestProps) => {
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,7 @@ export const AutosuggestField = ({ onGroupSelect }: AutosuggestProps) => {
           {...params}
           label="Group Name"
           fullWidth
+          size={size}
           placeholder="Type to search groups"
         />
       )}

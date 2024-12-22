@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Calendar from 'react-calendar';
 import { setDateRange } from '../store/dateSlice';
-import { Box } from '@mui/material';
 import { endOfDay, startOfDay, formatISO } from 'date-fns';
 import { Value } from 'react-calendar/src/shared/types.js';
 
@@ -36,13 +35,11 @@ export const CalendarComponent = ({ onDateChange }: CalendarProps) => {
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
-      <Calendar
-        onChange={handleDateChange}
-        value={selectedDates}
-        selectRange={true}
-        minDate={today}
-      />
-    </Box>
+    <Calendar
+      onChange={handleDateChange}
+      value={selectedDates}
+      selectRange={true}
+      minDate={today}
+    />
   );
 };

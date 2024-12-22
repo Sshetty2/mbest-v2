@@ -87,7 +87,7 @@ export class MeetupApi {
 
       // Filter groups if search text is provided
       if (searchText) {
-        return allGroups.filter(group => group.name.toLowerCase().startsWith(searchText.toLowerCase()));
+        return allGroups.filter(group => group.name.toLowerCase().includes(searchText.toLowerCase()));
       }
 
       return allGroups;
