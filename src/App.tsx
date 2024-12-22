@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Container, Button, TextField, Dialog } from '@mui/material';
 import { CalendarComponent } from './components/Calendar';
@@ -10,6 +10,9 @@ import { DialogComponent } from './components/Dialog';
 import { SuccessDialogComponent } from './components/SuccessDialog';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
+import { injectFonts } from './theme/fonts';
+import { GlobalStyles } from './theme/GlobalStyles';
+import './App.css';
 
 const App = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,6 +21,10 @@ const App = () => {
   const { loading, error } = useSelector((state: RootState) => state.events);
   const { events, confirmations } = useSelector((state: RootState) => state.events);
   const [showNoResults, setShowNoResults] = useState(false);
+
+  useEffect(() => {
+    injectFonts();
+  }, []);
 
   const handleScheduleClick = useCallback(() => {
     setShowNoResults(true);
@@ -41,14 +48,15 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyles />
       <Container
         maxWidth="sm"
         sx={{
           width    : '300px',
           minHeight: '580px',
-          bgcolor  : 'background.paper',
           p        : 1,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          border   : '1px solid #cac2c2',
+          boxShadow: '0px 10px 15px 2px rgba(0,0,0,0.5)'
         }}>
         <Box sx={{
           display      : 'flex',

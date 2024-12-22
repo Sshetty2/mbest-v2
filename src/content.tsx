@@ -6,11 +6,11 @@ const appId = 'meetup-batch-event-set';
 const injectApp = (mainLayout: Element) => {
   if (mainLayout) {
     const column3 = mainLayout.children[2] as HTMLElement;
-    column3.style.display = 'none';
     const block_to_insert = document.createElement('div');
     block_to_insert.id = appId;
+    block_to_insert.style.marginBottom = '20px';
 
-    mainLayout.appendChild(block_to_insert);
+    column3.appendChild(block_to_insert);
 
     const root = ReactDOM.createRoot(block_to_insert);
     root.render(<App />);
