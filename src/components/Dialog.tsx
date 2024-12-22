@@ -127,7 +127,7 @@ export const DialogComponent = ({
                     {event.venue.name}
                   </Typography>
                   <Checkbox
-                    checked={event.selected ?? true}
+                    checked={event.selected === undefined ? true : event.selected}
                     onChange={() => handleCheckboxChange(event.id)}
                     id={event.id}
                   />

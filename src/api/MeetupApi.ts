@@ -122,7 +122,7 @@ export class MeetupApi {
                   title
                   eventUrl
                   dateTime
-                  duration
+                  endTime
                   venue {
                     name
                     address

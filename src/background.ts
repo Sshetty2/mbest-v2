@@ -1,22 +1,39 @@
 import { ChromeStorageService } from './api/auth/storage';
+import { GoogleAuthService } from './api/GoogleAuthService';
+import { GoogleCalendarService } from './api/GoogleCalendarService';
 
 const storage = new ChromeStorageService();
 
-// Handle OAuth flow
+// Handle both OAuth flows
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'INITIATE_AUTH') {
-    handleAuth().then(sendResponse)
+    handleMeetupAuth().then(sendResponse)
       .catch(error => {
-        console.error('Auth error:', error);
+        console.error('Meetup Auth error:', error);
         sendResponse({ error: error.message });
       });
 
     return true; // Required for async response
   }
+
+  if (message.type === 'SCHEDULE_EVENTS') {
+    handleGoogleCalendarEvents(message.events)
+      .then(result => sendResponse({
+        success: true,
+        result
+      }))
+      .catch(error => sendResponse({
+        success: false,
+        error  : error.message
+      }));
+
+    return true; // Required for async response
+  }
 });
 
+// Meetup OAuth flow
 // eslint-disable-next-line max-statements
-async function handleAuth () {
+async function handleMeetupAuth () {
   try {
     // Construct auth URL directly
     const authParams = new URLSearchParams({
@@ -78,6 +95,30 @@ async function handleAuth () {
     return { success: true };
   } catch (error) {
     console.error('Auth error:', error);
+    throw error;
+  }
+}
+
+// Google Calendar event scheduling
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function handleGoogleCalendarEvents (events: any[]) {
+  const authService = new GoogleAuthService();
+  const calendarService = new GoogleCalendarService();
+
+  try {
+    const token = await authService.authorize();
+
+    const results = await Promise.all(
+      events.map(event => {
+        const formattedEvent = calendarService.formatMeetupEvent(event);
+
+        return calendarService.createEvent(token, formattedEvent);
+      })
+    );
+
+    return results;
+  } catch (error) {
+    console.error('Failed to schedule events:', error);
     throw error;
   }
 }

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { MeetupApi } from '../api/MeetupApi';
 import { RootState } from './store';
 
@@ -7,7 +7,7 @@ interface Event {
   title: string;
   eventUrl: string;
   dateTime: string;
-  duration: number;
+  endTime: string;
   venue: {
     name: string;
     address: string;
@@ -57,7 +57,45 @@ export const fetchEvents = createAsyncThunk(
   }
 );
 
-export const toggleEventSelection = createAction<string>('events/toggleSelection');
+export const scheduleEvents = createAsyncThunk(
+  'events/scheduleEvents',
+  (_, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const selectedEvents = state.events.events.filter(event => event.selected !== false);
+
+      if (selectedEvents.length === 0) {
+        throw new Error('No events selected');
+      }
+
+      return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(
+          {
+            type  : 'SCHEDULE_EVENTS',
+            events: selectedEvents
+          },
+          response => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+
+              return;
+            }
+
+            if (!response.success) {
+              reject(new Error(response.error));
+
+              return;
+            }
+
+            resolve(response.result);
+          }
+        );
+      });
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
 
 export const eventSlice = createSlice({
   name    : 'events',
@@ -71,7 +109,7 @@ export const eventSlice = createSlice({
       const event = state.events.find(e => e.id === action.payload);
 
       if (event) {
-        event.selected = !event.selected;
+        event.selected = event.selected === undefined ? false : !event.selected;
       }
     }
   },
@@ -92,6 +130,6 @@ export const eventSlice = createSlice({
   }
 });
 
-export const { clearEvents } = eventSlice.actions;
+export const { clearEvents, toggleEventSelection } = eventSlice.actions;
 
 export default eventSlice.reducer;

@@ -4,7 +4,7 @@ import { Box, Typography, Container, Button, TextField, Dialog } from '@mui/mate
 import { CalendarComponent } from './components/Calendar';
 import { AutosuggestField } from './components/AutoSuggest';
 import { LoadingDialogComponent } from './components/LoadingDialog';
-import { fetchEvents } from './store/eventSlice';
+import { fetchEvents, scheduleEvents } from './store/eventSlice';
 import { AppDispatch, RootState, store } from './store/store';
 import { DialogComponent } from './components/Dialog';
 
@@ -22,7 +22,7 @@ const App = () => {
   }, [dispatch]);
 
   const handleConfirmation = () => {
-    console.log('Confirmation clicked');
+    dispatch(scheduleEvents());
   };
 
   return (
