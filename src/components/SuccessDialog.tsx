@@ -46,29 +46,42 @@ export const SuccessDialogComponent = ({
     aria-labelledby="success-dialog-title"
     maxWidth="sm"
     fullWidth
+    PaperProps={{
+      sx: {
+        minHeight: 200,
+        m        : 1
+      }
+    }}
   >
     <DialogTitle sx={{ pb: 1 }}>
       <Typography
         variant="h6"
         sx={{
           color     : 'text.primary',
-          textShadow: '#0072ff99 1px 0 17px'
+          textShadow: theme => `${theme.palette.primary.light}40 1px 0 10px`,
+          fontSize  : '1.1rem'
         }}
       >
         Successfully scheduled {confirmations.length} events!
       </Typography>
     </DialogTitle>
-    <DialogContent>
+    <DialogContent sx={{
+      px: 2,
+      py: 0
+    }}>
       <DialogContentText component="div">
-        <List sx={{ pt: 0 }}>
+        <List sx={{ p: 0 }}>
           {confirmations.map((confirmation, index) => (
             <ListItem
               key={index}
               sx={{
-                flexDirection: 'column',
-                alignItems   : 'flex-start',
-                gap          : 0.5,
-                py           : 1
+                flexDirection : 'column',
+                alignItems    : 'flex-start',
+                gap           : 1,
+                py            : 1.5,
+                borderBottom  : '1px solid',
+                borderColor   : 'divider',
+                '&:last-child': { borderBottom: 'none' }
               }}
             >
               <Box sx={{
@@ -78,15 +91,16 @@ export const SuccessDialogComponent = ({
                 gap       : 1
               }}>
                 <Typography
-                  variant="subtitle1"
+                  variant="subtitle2"
                   component="a"
                   href={confirmation.htmlLink}
                   target="_blank"
                   rel="noreferrer"
                   sx={{
-                    color         : 'text.primary',
-                    textDecoration: 'underline',
-                    flex          : 1
+                    color         : 'primary.main',
+                    textDecoration: 'none',
+                    flex          : 1,
+                    '&:hover'     : { textDecoration: 'underline' }
                   }}
                 >
                   {confirmation.summary}
@@ -102,8 +116,9 @@ export const SuccessDialogComponent = ({
                 </Typography>
               </Box>
               <Typography
-                variant="body2"
-                color="text.secondary">
+                variant="caption"
+                color="text.secondary"
+              >
                 {new Date(confirmation.start.dateTime).toLocaleString()}
               </Typography>
             </ListItem>
@@ -111,10 +126,15 @@ export const SuccessDialogComponent = ({
         </List>
       </DialogContentText>
     </DialogContent>
-    <DialogActions>
+    <DialogActions sx={{
+      px: 2,
+      py: 1.5
+    }}>
       <Button
         onClick={dialogClose}
-        color="primary">
+        color="primary"
+        size="small"
+      >
         Close
       </Button>
     </DialogActions>

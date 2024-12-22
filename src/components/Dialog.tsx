@@ -82,16 +82,24 @@ export const DialogComponent = ({
       keepMounted
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          minHeight: 200,
+          m        : 1
+        }
+      }}
     >
-      <DialogTitle sx={{
-        py: 2.5,
-        px: 3
-      }}>
+      <DialogTitle sx={{ pb: 1 }}>
         <Typography
-          variant="h5"
-          sx={{ fontSize: '1.2rem' }}
-          className="habibi">
+          variant="h6"
+          sx={{
+            color     : 'text.primary',
+            textShadow: theme => `${theme.palette.primary.light}40 1px 0 10px`,
+            fontSize  : '1.1rem'
+          }}
+        >
           {greeting}
           {followUp && (
             <>
@@ -111,25 +119,33 @@ export const DialogComponent = ({
               <ListItem
                 key={event.id}
                 sx={{
-                  flexDirection: 'column',
-                  alignItems   : 'flex-start',
-                  pb           : 2.25,
-                  px           : 0
+                  flexDirection : 'column',
+                  alignItems    : 'flex-start',
+                  gap           : 1,
+                  py            : 1.5,
+                  borderBottom  : '1px solid',
+                  borderColor   : 'divider',
+                  '&:last-child': { borderBottom: 'none' }
                 }}
               >
                 <Box sx={{
-                  width         : '100%',
-                  display       : 'flex',
-                  justifyContent: 'space-between',
-                  alignItems    : 'center'
+                  width     : '100%',
+                  display   : 'flex',
+                  alignItems: 'center',
+                  gap       : 1
                 }}>
-                  <Typography color="text.primary">
+                  <Typography
+                    variant="subtitle2"
+                    color="text.primary"
+                    sx={{ flex: 1 }}
+                  >
                     {event.venue.name}
                   </Typography>
                   <Checkbox
                     checked={event.selected === undefined ? true : event.selected}
                     onChange={() => handleCheckboxChange(event.id)}
                     id={event.id}
+                    size="small"
                   />
                 </Box>
                 <Typography
@@ -137,15 +153,19 @@ export const DialogComponent = ({
                   href={event.eventUrl}
                   target="_blank"
                   rel="noreferrer"
+                  variant="body2"
                   sx={{
-                    color         : 'text.primary',
-                    textDecoration: 'underline'
+                    color         : 'primary.main',
+                    textDecoration: 'none',
+                    '&:hover'     : { textDecoration: 'underline' }
                   }}
                 >
                   {event.title}
                 </Typography>
-
-                <Typography color="text.primary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                >
                   {formatDate(event.dateTime)}
                 </Typography>
               </ListItem>
@@ -153,16 +173,24 @@ export const DialogComponent = ({
           </List>
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{
+        px: 2,
+        py: 1.5
+      }}>
         <Button
           onClick={handleClose}
-          color="primary">
+          color="primary"
+          size="small"
+        >
           {events.length > 0 ? 'Cancel' : 'Close'}
         </Button>
         {events.length > 0 && (
           <Button
             onClick={onConfirm}
-            color="primary">
+            color="primary"
+            variant="contained"
+            size="small"
+          >
             Schedule
           </Button>
         )}
