@@ -1,6 +1,6 @@
 /* TODO: Remove this comment and refactor */
-/* stylelint-disable */
 
+/* stylelint-disable */
 :root {
   flex: 1 !important;
   width: 300px;
@@ -51,30 +51,30 @@ body {
   /* text-shadow: #3700B3 1px 0 10px; */
 }
 
-.habibi{
-font-family: Habibi, serif;
+.habibi {
+  font-family: Habibi, serif;
 }
 
-.cag{
+.cag {
   font-family: Cagliostro, sans-serif;
 }
 
-.neohell{
+.neohell {
   font-family: 'GFS Neohellenic', sans-serif;
 }
 
-.rancho{
+.rancho {
   font-family: Rancho, cursive;
 }
 
-ul{
+ul {
   list-style-type: none;
   padding: 6px;
   margin: 0;
 }
 
-li{
-  font-size: 14px
+li {
+  font-size: 14px;
 }
 
 body {

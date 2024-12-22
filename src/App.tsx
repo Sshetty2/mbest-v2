@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Container, Button, TextField, Dialog } from '@mui/material';
 import { CalendarComponent } from './components/Calendar';
@@ -15,10 +15,6 @@ const App = () => {
   const { loading, error } = useSelector((state: RootState) => state.events);
   const { events } = useSelector((state: RootState) => state.events);
   const [showNoResults, setShowNoResults] = useState(false);
-
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
 
   const handleScheduleClick = useCallback(() => {
     setShowNoResults(true);
