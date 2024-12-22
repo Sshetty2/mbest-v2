@@ -2,6 +2,7 @@
 /* stylelint-disable */
 
 :root {
+  flex: 1 !important;
   width: 300px;
   height: 600px;
 }
@@ -86,47 +87,6 @@ ul{
   margin: 0;
 }
 
-.react-autosuggest__input--focused {
-  outline: none;
-}
-
-.react-autosuggest__input--open {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.react-autosuggest__suggestions-container {
-  display: none;
-}
-
-.react-autosuggest__suggestions-container--open {
-  display: block;
-  position: absolute;
-  top: 47px;
-  width: 350px;
-  background-color: #fff;
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  z-index: 2;
-}
-
-.react-autosuggest__suggestions-list {
-  list-style-type: none;
-  padding-left: 0;
-
-}
-
-.react-autosuggest__suggestion {
-  cursor: pointer;
-  border-style: outset;
-  padding: 8px 4px 14px 10px;
-}
-
-.react-autosuggest__suggestion--highlighted {
-  background-color: #ddd;
-}
 
 .footer {
   margin: 9px 20px;
