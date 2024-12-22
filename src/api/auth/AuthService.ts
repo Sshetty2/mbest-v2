@@ -1,7 +1,7 @@
 import { ChromeStorageService } from './storage';
 
 export class AuthService {
-  public storage: ChromeStorageService;
+  private storage: ChromeStorageService;
 
   constructor () {
     this.storage = new ChromeStorageService();
@@ -32,31 +32,30 @@ export class AuthService {
       return null;
     }
 
-    if (Date.now() >= tokens.expires_at) {
-      return this.refreshToken(tokens.refresh_token);
+    // Check if token is expired or will expire in the next minute
+    if (Date.now() >= tokens.expires_at - 60000) {
+      try {
+        const newTokens = await this.storage.refreshTokens(tokens.refresh_token);
+
+        return newTokens.access_token;
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+
+        return null;
+      }
     }
 
     return tokens.access_token;
   }
 
-  private async refreshToken (refreshToken: string): Promise<string | null> {
-    try {
-      const response = await fetch(`${process.env.VITE_LAMBDA_API_URL}/auth/refresh`, {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ refresh_token: refreshToken })
-      });
+  async isAuthenticated (): Promise<boolean> {
+    const token = await this.getValidToken();
 
-      const newTokens = await response.json();
-      const parsedBody = JSON.parse(newTokens.body);
+    return token !== null;
+  }
 
-      await this.storage.storeTokens(parsedBody);
-
-      return newTokens.access_token;
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
-
-      return null;
-    }
+  // eslint-disable-next-line class-methods-use-this
+  async logout (): Promise<void> {
+    await chrome.storage.local.remove('meetup_tokens');
   }
 }

@@ -13,6 +13,9 @@ import { store } from './store/store';
 import './App.css';
 import 'react-calendar/dist/Calendar.css';
 
+// import { endOfDay, formatISO, isValid, startOfDay } from 'date-fns';
+import { MeetupApi } from './api/MeetupApi';
+
 interface MeetupEvent {
 	venue: { [key: string]: { name: string } };
 	group: { [key: string]: { name: string } };
@@ -31,10 +34,23 @@ interface AppState {
 	isLoading: boolean;
 }
 
+const handleFetchEvents = async (urlname: string, startDate: Date, endDate: Date) => {
+  try {
+    const meetupApi = new MeetupApi();
+    const allEvents = await meetupApi.fetchGroupEvents(urlname);
+    const filteredEvents = meetupApi.filterEventsByDateRange(allEvents, startDate, endDate);
+
+    // Do something with the filtered events
+    console.log('Filtered events:', filteredEvents);
+  } catch (error) {
+    console.error('Failed to fetch events:', error);
+  }
+};
+
 export default function App () {
   const [state, setState] = useState<AppState>({
     meetupEventData: [],
-    date           : new Date(),
+    date           : [new Date(), new Date()],
     open           : false,
     urlGroupName   : '',
     successBox     : false,
@@ -42,8 +58,49 @@ export default function App () {
     isLoading      : false
   });
 
-  const formatDate = useCallback((date: Value) => {
-    if (!date) {
+  // const formatDate = useCallback((date: Value) => {
+  //   if (!date || !Array.isArray(date)) {
+  //     return;
+  //   }
+
+  //   const [startDate, endDate] = date;
+
+  //   if (!isValid(startDate) || !isValid(endDate)) {
+  //     return;
+  //   }
+
+  //   const formattedStartDate = formatISO(startOfDay(startDate as Date));
+  //   const formattedEndDate = formatISO(endOfDay(endDate as Date));
+
+  //   return [formattedStartDate, formattedEndDate];
+
+  // const formattedStartDate =
+  // const options: Intl.DateTimeFormatOptions = {
+  //   weekday: 'short',
+  //   year   : 'numeric',
+  //   month  : 'long',
+  //   day    : 'numeric'
+  // };
+
+  // if (Array.isArray(date)) {
+  //   return `${date[0]?.toLocaleDateString('en-US', options)} - ${date[1]?.toLocaleDateString('en-US', options)}`;
+  // }
+
+  // return '';
+  // }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    if (!state.date?.[0] || !state.date?.[1]) {
+      return;
+    }
+
+    // @ts-ignore
+    handleFetchEvents('new-york-philosophy', state.date[0], state.date[1]);
+  }, [state.date]);
+
+  const formatReadableDate = useCallback((date: Value) => {
+    if (!date || !Array.isArray(date)) {
       return '';
     }
 
@@ -270,7 +327,7 @@ export default function App () {
 					Meetup Batch Event Set Tool
             </Typography>
             <Form
-              date={formatDate(state.date)}
+              date={formatReadableDate(state.date)}
 
               // onFormSubmit={handleFormSubmit}
               // textFieldValue={state.textField}

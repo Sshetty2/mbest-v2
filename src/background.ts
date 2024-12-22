@@ -18,19 +18,17 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // eslint-disable-next-line max-statements
 async function handleAuth () {
   try {
-    // Get auth URL from Lambda
-    const _url = `${import.meta.env.VITE_LAMBDA_API_URL}/meetup-auth`;
-    const response = await fetch(_url);
-    const data = await response.json();
+    // Construct auth URL directly
+    const authParams = new URLSearchParams({
+      client_id    : import.meta.env.VITE_MEETUP_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri : import.meta.env.VITE_REDIRECT_URI,
+      scope        : 'basic group_read event_read'
+    });
 
-    const parsedBody = JSON.parse(data.body);
+    const authUrl = `https://secure.meetup.com/oauth2/authorize?${authParams}`;
 
-    const authUrl = parsedBody.authUrl;
-
-    if (!authUrl) {
-      throw new Error('No auth URL received');
-    }
-
+    // Launch OAuth flow
     const authResult = await chrome.identity.launchWebAuthFlow({
       url        : authUrl,
       interactive: true
@@ -48,17 +46,34 @@ async function handleAuth () {
       throw new Error('No authorization code received');
     }
 
-    // Exchange code for tokens
-    const tokenResponse = await fetch(`${import.meta.env.VITE_LAMBDA_API_URL}/meetup-access`, {
+    // Exchange code for tokens directly with Meetup
+    const tokenResponse = await fetch('https://secure.meetup.com/oauth2/access', {
       method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ code })
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body   : new URLSearchParams({
+        client_id    : import.meta.env.VITE_MEETUP_CLIENT_ID,
+        client_secret: import.meta.env.VITE_MEETUP_CLIENT_SECRET,
+        grant_type   : 'authorization_code',
+        redirect_uri : import.meta.env.VITE_REDIRECT_URI,
+        code
+      })
     });
 
-    const tokens = await tokenResponse.json();
-    const parsedTokens = JSON.parse(tokens.body);
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text();
+      throw new Error(`Failed to exchange code for tokens: ${error}`);
+    }
 
-    await storage.storeTokens(parsedTokens);
+    const tokens = await tokenResponse.json();
+
+    // Add expiration time to tokens
+    const expiresAt = Date.now() + tokens.expires_in * 1000;
+    const tokenData = {
+      ...tokens,
+      expires_at: expiresAt
+    };
+
+    await storage.storeTokens(tokenData);
 
     return { success: true };
   } catch (error) {

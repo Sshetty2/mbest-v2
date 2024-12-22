@@ -20,7 +20,7 @@
         "src/content.tsx"
       ],
       "matches": [
-        "https://*.meetup.com/*"
+        "https://*.meetup.com/home/*"
       ]
     }
   ],
